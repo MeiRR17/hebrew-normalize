@@ -34,6 +34,21 @@
         <label for="source" class="sr-only">טקסט עברי לנרמול</label><textarea id="source" dir="auto" spellcheck="false" rows="10" placeholder="הדביקו כאן טקסט עברי מנוקד או מעורב..."></textarea><div class="foot"><span>תצוגת מקור ללא שינוי</span><span id="source-count">0 תווים</span></div></section>
       <section class="panel text-panel"><div class="panel-head"><div><span class="eyebrow">03 / תוצאה</span><h2>טקסט מנורמל</h2></div><div class="buttons"><button id="copy" type="button">העתקה</button><button id="download" type="button">↓ הורדה</button></div></div>
         <label for="output" class="sr-only">התוצאה המנורמלת</label><textarea id="output" dir="auto" readonly spellcheck="false" rows="10"></textarea><div class="foot"><span id="change-message">ממתין לקלט</span><span id="output-count">0 תווים</span></div></section>
+      <section class="panel duplicate-panel" aria-labelledby="duplicates-heading">
+        <div class="panel-head">
+          <div><span class="eyebrow">04 / ניקוי נתונים</span><h2 id="duplicates-heading">איתור שורות כפולות</h2></div>
+          <div class="buttons">
+            <button type="button" id="find-duplicates">בדיקת כפילויות</button>
+            <button type="button" id="download-duplicates" disabled>↓ דוח JSON</button>
+          </div>
+        </div>
+        <div class="duplicate-content">
+          <p class="helper">בדיקה של שורות מקור לא ריקות לפי כללי הנרמול הנוכחיים. מתקבלת רשימה של שורות שהופכות למפתח זהה, גם אם הניקוד או הכתיב שלהן שונים. אין כאן קביעה של זהות לשונית או הלכתית.</p>
+          <p id="duplicates-summary" role="status" aria-live="polite">טרם בוצעה בדיקת כפילויות.</p>
+          <div id="duplicates-groups" class="duplicate-list"></div>
+          <p class="helper">הדוח עשוי להכיל טקסט מנורמל מתוך הקובץ. בדקו את תוכנו לפני שיתוף. כל העיבוד נשאר בדפדפן.</p>
+        </div>
+      </section>
       <p id="notice" role="status" aria-live="polite" class="notice"></p>
       <div class="example"><h3>דוגמה</h3><p>חיפוש אחר <code>שלום</code> עשוי להחמיץ את <code>שָׁלוֹם</code> אם לא מסירים את הניקוד. יש להפעיל את אותן הגדרות על שאילתת החיפוש ועל הטקסט באינדקס.</p></div>
     </section>
