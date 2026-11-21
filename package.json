@@ -1,0 +1,11 @@
+{
+  "name": "hebrew-normalize",
+  "version": "0.1.0",
+  "description": "Dependency-free Hebrew text normalizer for search and display",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "exports": { ".": "./src/index.js" },
+  "bin": { "hebrew-normalize": "./bin/hebrew-normalize.js" },
+  "files": ["src/", "bin/", "index.html", "styles.css", "app.js", "README.md", "LICENSE"],
+  "license": "MIT"
+}
