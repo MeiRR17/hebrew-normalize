@@ -1,2 +1,87 @@
-# hebrew-normalize
-Normalize Hebrew text for search: niqqud, final letters, punctuation and more
+# Hebrew Normalize
+
+ספריית JavaScript עצמאית, כלי CLI וממשק דפדפן לנרמול טקסט עברי לצורכי **חיפוש, אינדוקס והשוואת מחרוזות**. אין תלות בחבילות חיצוניות, שירות רשת או חשבון משתמש.
+
+## הפעלה בדפדפן
+
+משרת סטטי בתיקיית המאגר:
+
+    python3 -m http.server 8000
+
+פותחים http://localhost:8000. בוחרים תצורה, מדביקים טקסט ובוחרים כללים. התוצאה מתעדכנת באופן מקומי. אפשר להעתיק, לייבא קובץ טקסט או להוריד תוצאה.
+
+האתר אינו שומר את הטקסט ב־localStorage ואינו שולח אותו לשרת.
+
+## שימוש כספרייה
+
+דורש Node.js 22 ומעלה, או דפדפן מודרני התומך ב־ES Modules:
+
+    import {
+      normalizeHebrew, searchKey, displayText,
+      normalizeWithReport, DEFAULT_OPTIONS, PRESETS
+    } from './src/index.js';
+
+    normalizeHebrew('שָׁלוֹם'); // 'שלום'
+    searchKey('מֶלֶךְ');        // 'מלכ'
+    displayText('שָׁלוֹם');      // הניקוד נשמר
+
+השתמשו באותן הגדרות על **טקסט המקור ועל שאילתת החיפוש**. נרמול אותיות סופיות אינו תיקון לשוני, אלא יצירת מפתח השוואה רחב יותר.
+
+### כללים
+
+- \`removeNiqqud\` — הסרת סימני ניקוד ודגש בתחום Unicode העברי.
+- \`removeCantillation\` — הסרת טעמי מקרא (U+0591–U+05AF).
+- \`normalizePresentation\` — פירוק צורות Unicode מעוצבות בתחום U+FB1D–U+FB4F, מבלי לנרמל אותיות לטיניות בדרך אגב.
+- \`expandYiddish\` — פירוק װ, ױ, ײ לצירופי האותיות המתאימים.
+- \`normalizeFinalLetters\` — מיפוי ך→כ, ם→מ, ן→נ, ף→פ, ץ→צ.
+- \`removeBidiControls\` — הסרת LRM, RLM, ALM, תווי embedding/override ו־directional isolates. לא מסיר ZWJ/ZWNJ.
+- \`normalizePunctuation\` — אחידות גרש וגרשיים מסוימים בהקשר עברי. אינו מחליף כל סימן פיסוק אנגלי.
+- \`normalizeMaqaf\` — החלפת המקף העברי ־ במקף רגיל.
+- \`collapseWhitespace\` — איחוד רצפים של רווחים ושבירות שורה לרווח יחיד.
+- \`trim\` — הסרת רווחים בקצות הטקסט.
+
+כל אפשרות היא Boolean. אפשר להעביר רק את ההגדרות שרוצים לשנות:
+
+    normalizeHebrew('מֶלֶךְ', {
+      removeNiqqud: true,
+      normalizeFinalLetters: false
+    }); // 'מלך'
+
+\`PRESETS.search\` מפעיל איחוד סופיות כדי ליצור מפתחות חיפוש רחבים. \`PRESETS.display\` שומר ניקוד וטעמים ומיועד להצגה שמרנית יותר.
+
+## CLI
+
+בלי התקנת חבילות חיצוניות:
+
+    node bin/hebrew-normalize.js --help
+    node bin/hebrew-normalize.js input.txt
+    node bin/hebrew-normalize.js --mode search input.txt
+    node bin/hebrew-normalize.js --mode display input.txt
+    node bin/hebrew-normalize.js --mode search --keep-finals input.txt
+    node bin/hebrew-normalize.js --mode search --output normalized.txt input.txt
+
+אפשר גם להעביר קלט דרך stdin. הפלט נשלח ל־stdout או לקובץ חדש באמצעות \`--output\`. קובץ קיים **לא יידרס**. האפשרות \`--json\` מחזירה את התוצאה כמחרוזת JSON.
+
+## מגבלות
+
+- אין stemming, ניתוח מורפולוגי, חיפוש שורשים, תרגום או זיהוי שמות.
+- איחוד אותיות סופיות עשוי ליצור מחרוזות שאינן מילים עבריות תקינות — שימושי למפתחות חיפוש בלבד.
+- ניקוד וטעמים עשויים להיות משמעותיים למחקרי תנ״ך ולדקדוק; בחרו תצוגה שומרת סימנים כשחשוב לשמרם.
+- התמיכה אינה ממירה תעתיקים ואינה מפרשת את כל סוגי הקיצור והגרשיים בעברית.
+- גודל קלט מקסימלי: 2,000,000 תווים; בייבוא דפדפן עד 2MB.
+
+**סטטוס:** מימוש קוד בלבד. לא בוצעו בדיקות אוטומטיות בהתאם להנחיית הבעלים להפריד את הפיתוח מסבב הבדיקות המרכזי.
+
+## קבצים
+
+- \`src/index.js\` — מנוע נרמול, תצורות וממשקי API.
+- \`bin/hebrew-normalize.js\` — CLI ל־Node.js.
+- \`index.html\` — ממשק השוואת טקסט בעברית.
+- \`app.js\` — תצוגה, תצורות, ייבוא וייצוא מקומיים.
+- \`styles.css\` — עיצוב רספונסיבי.
+- \`package.json\` — חבילת ES Modules.
+- \`LICENSE\` — MIT.
+
+## Author
+
+Built by Meir Dvir · https://github.com/MeiRR17
