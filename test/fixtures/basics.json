@@ -1,0 +1,52 @@
+[
+  {
+    "name": "default: collapse and trim mixed whitespace",
+    "input": " \tשלום  \n  עולם\r\n",
+    "expected": "שלום עולם"
+  },
+  {
+    "name": "default: strip Unicode bidi controls",
+    "input": "א‎ב‏ג؜ד‪ה‬ו⁦ז⁩ח",
+    "expected": "אבגדהוזח"
+  },
+  {
+    "name": "only whitespace is disabled",
+    "input": "  א   ב  ",
+    "options": { "collapseWhitespace": false },
+    "expected": "  א   ב  "
+  },
+  {
+    "name": "only direction marks are disabled",
+    "input": "שלום‎  עולם",
+    "options": { "removeDirectionMarks": false },
+    "expected": "שלום‎ עולם"
+  },
+  {
+    "name": "all active stages disabled: exactly unchanged",
+    "input": "  א‎   ב\n",
+    "options": {
+      "removeDirectionMarks": false,
+      "collapseWhitespace": false,
+      "removeMarks": false,
+      "foldFinalLetters": false,
+      "normalizeQuotes": false,
+      "stripPunctuation": false
+    },
+    "expected": "  א‎   ב\n"
+  },
+  {
+    "name": "non-Hebrew characters are untouched",
+    "input": " English  123  😀 ",
+    "expected": "English 123 😀"
+  },
+  {
+    "name": "empty input is empty",
+    "input": "",
+    "expected": ""
+  },
+  {
+    "name": "Unicode niqqud is not removed in v1",
+    "input": "שָׁלוֹם",
+    "expected": "שָׁלוֹם"
+  }
+]
