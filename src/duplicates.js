@@ -70,3 +70,50 @@ export function duplicateSummary(result) {
   return { sourceLineCount, nonEmptyLines, normalizedEmpty, distinctKeys,
     duplicateGroups, duplicateLines, redundantLines };
 }
+
+
+/**
+ * Produce counts without constructing groups of normalized keys or source
+ * line numbers in the returned result. Keys are temporarily held in a Map
+ * for exact matching, but never leave this function.
+ *
+ * This does not identify meaningful linguistic duplicates; it uses the same
+ * normalization rules and bounded inputs as findDuplicateLines().
+ */
+export function summarizeDuplicateLines(source, options = PRESETS.search) {
+  if (typeof source !== 'string' || source.length > MAX_DOCUMENT_CHARS) {
+    throw new RangeError('Input must contain at most 2,000,000 characters.');
+  }
+  const lines = source.split(/\r\n?|\n/u);
+  const frequencies = new Map();
+  let nonEmptyLines = 0, normalizedEmpty = 0;
+  let duplicateGroups = 0, duplicateLines = 0, redundantLines = 0;
+  for (const raw of lines) {
+    if (!raw.trim()) continue;
+    nonEmptyLines++;
+    if (nonEmptyLines > MAX_NONEMPTY_LINES) {
+      throw new RangeError('Duplicate analysis supports at most 10,000 non-empty lines.');
+    }
+    const key = normalizeHebrew(raw, options);
+    if (!key.trim()) { normalizedEmpty++; continue; }
+    const previous = frequencies.get(key) ?? 0;
+    frequencies.set(key, previous + 1);
+    if (previous === 1) {
+      duplicateGroups++;
+      duplicateLines += 2;
+      redundantLines++;
+    } else if (previous > 1) {
+      duplicateLines++;
+      redundantLines++;
+    }
+  }
+  return {
+    sourceLineCount: lines.length,
+    nonEmptyLines,
+    normalizedEmpty,
+    distinctKeys: frequencies.size,
+    duplicateGroups,
+    duplicateLines,
+    redundantLines,
+  };
+}
