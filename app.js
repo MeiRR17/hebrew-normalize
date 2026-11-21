@@ -12,6 +12,8 @@ const example=[
 ].join('\n');
 let result='';
 let lastDuplicates=null;
+let editRevision=0;
+let fileImportRevision=0;
 function notice(message,error=false){
   $('notice').textContent=message;
   $('notice').className='notice'+(error?' error':'');
@@ -28,10 +30,12 @@ function count(value){
 function clearDuplicates(){
   lastDuplicates=null;
   $('download-duplicates').disabled=true;
+  $('download-duplicate-counts').disabled=true;
   $('duplicates-groups').replaceChildren();
   $('duplicates-summary').textContent='הטקסט או הכללים השתנו. הרץ בדיקה חדשה.';
 }
 function update(){
+  editRevision++;
   clearDuplicates();
   $('source-count').textContent=count(source.value);
   try{
@@ -78,13 +82,23 @@ $('file').addEventListener('change',async event=>{
   const file=event.target.files?.[0];
   event.target.value='';
   if(!file)return;
+  const request=++fileImportRevision;
+  const revision=editRevision;
   if(file.size>2_000_000){notice('הקובץ גדול מ־2MB.',true);return;}
   try{
     const data=await file.text();
+    if(request!==fileImportRevision)return;
+    if(revision!==editRevision){
+      notice('הטקסט או הכללים השתנו במהלך הקריאה. הייבוא הישן בוטל כדי למנוע דריסה.',true);
+      return;
+    }
     if(data.length>2_000_000)throw new RangeError('הטקסט חורג ממגבלת 2 מיליון תווים.');
     if(source.value.trim() && !confirm('לייבא קובץ במקום הטקסט הנוכחי?'))return;
+    if(request!==fileImportRevision || revision!==editRevision)return;
     source.value=data;update();
-  }catch(error){notice('טעינת הקובץ נכשלה: '+error.message,true);}
+  }catch(error){
+    if(request===fileImportRevision)notice('טעינת הקובץ נכשלה: '+error.message,true);
+  }
 });
 $('download').addEventListener('click',()=>save('normalized-hebrew.txt',result,'text/plain;charset=utf-8'));
 $('copy').addEventListener('click',async()=>{
@@ -134,16 +148,29 @@ function analyzeDuplicates(){
       }
     }
     $('download-duplicates').disabled=false;
+    $('download-duplicate-counts').disabled=false;
     notice('ניתוח הכפילויות הושלם מקומית. ערכי המקור לא נשלחו לשרת.');
   }catch(error){
     lastDuplicates=null;
     $('download-duplicates').disabled=true;
+    $('download-duplicate-counts').disabled=true;
     $('duplicates-groups').replaceChildren();
     $('duplicates-summary').textContent='הבדיקה נכשלה.';
     notice(error.message,true);
   }
 }
 $('find-duplicates').addEventListener('click',analyzeDuplicates);
+$('download-duplicate-counts').addEventListener('click',()=>{
+  if(!lastDuplicates)return;
+  const report={
+    format:'hebrew-normalize-duplicate-summary-v1',
+    counts:duplicateSummary(lastDuplicates),
+    advisory:'Counts only. Normalized keys, line numbers and original content are omitted.',
+  };
+  save('hebrew-duplicate-counts.json',JSON.stringify(report,null,2)+'\n',
+    'application/json;charset=utf-8');
+  notice('סיכום מספרי נשמר. הדוח אינו כולל מפתחות או שורות טקסט.');
+});
 $('download-duplicates').addEventListener('click',()=>{
   if(!lastDuplicates)return;
   const report={
