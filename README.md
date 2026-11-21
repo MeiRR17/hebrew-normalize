@@ -57,16 +57,17 @@
 
 ממשק הספרייה:
 
-    import { findDuplicateLines, duplicateSummary } from './src/duplicates.js';
+    import { findDuplicateLines, duplicateSummary, summarizeDuplicateLines } from './src/duplicates.js';
 
     const text = 'שָׁלוֹם\nשלום\nמֶלֶךְ\nמלך';
     const analysis = findDuplicateLines(text);
     // analysis.groups: normalized keys and original line numbers
     const counts = duplicateSummary(analysis); // counts only, no text
+    const directCounts = summarizeDuplicateLines(text); // counts directly, without group arrays
 
 הברירה הראשונית של הספרייה היא \`PRESETS.search\`. ניתן להעביר אותן הגדרות Boolean שבהן משתמשת \`normalizeHebrew\`. מגבלות: 2,000,000 תווים ו־10,000 שורות לא־ריקות; הממשק מציג עד 200 קבוצות, הדוח המלא כולל את כולן והדוח המספרי אינו מכיל אף קבוצה. שורות שמתאפסות למחרוזת ריקה בעקבות הסרת סימנים אינן מקובצות ככפילויות, אלא נספרות בנפרד.
 
-העיבוד נשאר בדפדפן. **דוח כפילויות מלא** כולל מפתחות מנורמלים ומיקומי שורות, ולכן עשוי להכיל מידע רגיש. **דוח ספירות בלבד** כולל רק את הסטטיסטיקה המספרית: מספר השורות, קבוצות הכפילויות והשורות העודפות — ללא טקסט ומיקומים. עדיין יש לבדוק התאמה לשיתוף. תיקון נוסף מונע מקובץ שנטען באיחור לדרוס עריכות או הגדרות נרמול ששונו בינתיים. אפשר לייבא את המודול גם בנתיב החבילה \`hebrew-normalize/duplicates\`.
+העיבוד נשאר בדפדפן. **דוח כפילויות מלא** כולל מפתחות מנורמלים ומיקומי שורות, ולכן עשוי להכיל מידע רגיש. **דוח ספירות בלבד** כולל רק את הסטטיסטיקה המספרית: מספר השורות, קבוצות הכפילויות והשורות העודפות — ללא טקסט ומיקומים. מנגנון `summarizeDuplicateLines` סופר התאמות בעזרת מפה זמנית בזיכרון, אך אינו בונה או מחזיר רשימת מפתחות מנורמלים ומספרי שורות; כפתור הדוח המספרי משתמש כעת במנגנון זה. עדיין יש לבדוק התאמה לשיתוף. תיקון נוסף מונע מקובץ שנטען באיחור לדרוס עריכות או הגדרות נרמול ששונו בינתיים. אפשר לייבא את המודול גם בנתיב החבילה \`hebrew-normalize/duplicates\`.
 
 ## CLI
 
