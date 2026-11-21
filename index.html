@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#15243b">
+<meta name="description" content="נרמול טקסט עברי לחיפוש: ניקוד, טעמים, אותיות סופיות, פיסוק וסימני כיווניות — מקומית בדפדפן.">
+<title>Hebrew Normalize — טקסט עברי נקי לחיפוש</title>
+<link rel="stylesheet" href="./styles.css"><script type="module" src="./app.js"></script>
+</head>
+<body>
+<header class="top"><a class="brand" href="./"><span class="brand-icon">א</span><strong>hebrew<span>normalize</span></strong><small>טקסט חכם</small></a><a href="https://github.com/MeiRR17/hebrew-normalize" target="_blank" rel="noopener noreferrer">GitHub ↗</a></header>
+<main class="shell">
+  <section class="intro"><div class="eyebrow">טקסט עברי · חיפוש · נרמול Unicode</div><h1>אותו טקסט. <em>פחות רעש.</em></h1><p>מכינים טקסט עברי לחיפוש ולהשוואה: בוחרים איך לטפל בניקוד, בטעמי המקרא, באותיות סופיות ובסימני כיווניות — בלי להעלות תוכן לשרת.</p></section>
+  <div class="workspace">
+    <section class="panel settings">
+      <div class="heading"><span class="step">01</span><div><h2>אפשרויות נרמול</h2><p>בחרו תצורה מוכנה או התאימו כל כלל.</p></div></div>
+      <label class="select-field" for="preset">תצורה <select id="preset"><option value="search">חיפוש והשוואה</option><option value="display">תצוגה ושימור ניקוד</option><option value="default">ברירת מחדל</option><option value="custom">התאמה אישית</option></select></label>
+      <fieldset class="options"><legend>פעולות</legend>
+        <label class="toggle"><input type="checkbox" id="removeNiqqud"><span><strong>הסרת ניקוד</strong><small>סימני תנועה ודגש</small></span></label>
+        <label class="toggle"><input type="checkbox" id="removeCantillation"><span><strong>הסרת טעמי מקרא</strong><small>סימני טעמים בתחום Unicode</small></span></label>
+        <label class="toggle"><input type="checkbox" id="normalizePresentation"><span><strong>נרמול אותיות מעוצבות</strong><small>צורות כתיב ייעודיות של Unicode</small></span></label>
+        <label class="toggle"><input type="checkbox" id="expandYiddish"><span><strong>פירוק צירופי אותיות יידיש</strong><small>װ, ױ, ײ לצירופים רגילים</small></span></label>
+        <label class="toggle"><input type="checkbox" id="normalizeFinalLetters"><span><strong>איחוד אותיות סופיות</strong><small>ך→כ, ם→מ, ן→נ, ף→פ, ץ→צ</small></span></label>
+        <label class="toggle"><input type="checkbox" id="removeBidiControls"><span><strong>הסרת פקודות כיווניות</strong><small>LRM, RLM וסימני RTL/LTR נסתרים</small></span></label>
+        <label class="toggle"><input type="checkbox" id="normalizePunctuation"><span><strong>איחוד גרש וגרשיים</strong><small>סימנים חלופיים בתוך עברית</small></span></label>
+        <label class="toggle"><input type="checkbox" id="normalizeMaqaf"><span><strong>איחוד מקף עברי</strong><small>המרת ־ למקף רגיל</small></span></label>
+        <label class="toggle"><input type="checkbox" id="collapseWhitespace"><span><strong>איחוד רווחים</strong><small>החלפת רווחים ושבירות שורה ברווח יחיד</small></span></label>
+        <label class="toggle"><input type="checkbox" id="trim"><span><strong>ניקוי קצוות</strong><small>הסרת רווחים מתחילת וסוף הטקסט</small></span></label>
+      </fieldset>
+      <p class="hint">איחוד אותיות סופיות משנה את צורת המילה, ולכן מתאים בעיקר למפתחי מנועי חיפוש — לא לעריכת טקסט להצגה.</p>
+    </section>
+    <section class="workarea">
+      <section class="panel text-panel"><div class="panel-head"><div><span class="eyebrow">02 / מקור</span><h2>טקסט מקורי</h2></div><div class="buttons"><button id="sample" type="button">דוגמה</button><button id="import" type="button">↑ קובץ</button><input id="file" type="file" accept=".txt,.md,text/plain,text/markdown" hidden></div></div>
+        <label for="source" class="sr-only">טקסט עברי לנרמול</label><textarea id="source" dir="auto" spellcheck="false" rows="10" placeholder="הדביקו כאן טקסט עברי מנוקד או מעורב..."></textarea><div class="foot"><span>תצוגת מקור ללא שינוי</span><span id="source-count">0 תווים</span></div></section>
+      <section class="panel text-panel"><div class="panel-head"><div><span class="eyebrow">03 / תוצאה</span><h2>טקסט מנורמל</h2></div><div class="buttons"><button id="copy" type="button">העתקה</button><button id="download" type="button">↓ הורדה</button></div></div>
+        <label for="output" class="sr-only">התוצאה המנורמלת</label><textarea id="output" dir="auto" readonly spellcheck="false" rows="10"></textarea><div class="foot"><span id="change-message">ממתין לקלט</span><span id="output-count">0 תווים</span></div></section>
+      <p id="notice" role="status" aria-live="polite" class="notice"></p>
+      <div class="example"><h3>דוגמה</h3><p>חיפוש אחר <code>שלום</code> עשוי להחמיץ את <code>שָׁלוֹם</code> אם לא מסירים את הניקוד. יש להפעיל את אותן הגדרות על שאילתת החיפוש ועל הטקסט באינדקס.</p></div>
+    </section>
+  </div>
+  <div class="privacy">◈ עיבוד מקומי בלבד. אין בקשות לשרת, אין נתוני טקסט שנשמרים אוטומטית ואין מערכות מעקב.</div>
+</main>
+<footer><span>Hebrew Normalize · ספריית JavaScript וכלי דפדפן</span><span>פותח בידי <a href="https://github.com/MeiRR17" target="_blank" rel="noopener noreferrer">Meir Dvir</a></span></footer>
+</body></html>
