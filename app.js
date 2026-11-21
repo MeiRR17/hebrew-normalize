@@ -1,4 +1,5 @@
 import { normalizeHebrew, DEFAULT_OPTIONS, PRESETS } from './src/index.js';
+import { findDuplicateLines, duplicateSummary } from './src/duplicates.js';
 const $=id=>document.getElementById(id);
 const source=$('source'), output=$('output'),preset=$('preset');
 const optionNames=Object.keys(DEFAULT_OPTIONS);
@@ -10,6 +11,7 @@ const example=[
   'אותיות סופיות: מלך, שלום, אבן, יוסף, ארץ.',
 ].join('\n');
 let result='';
+let lastDuplicates=null;
 function notice(message,error=false){
   $('notice').textContent=message;
   $('notice').className='notice'+(error?' error':'');
@@ -23,7 +25,14 @@ function selectedSettings(){
 function count(value){
   return [...value].length.toLocaleString('he-IL')+' תווים';
 }
+function clearDuplicates(){
+  lastDuplicates=null;
+  $('download-duplicates').disabled=true;
+  $('duplicates-groups').replaceChildren();
+  $('duplicates-summary').textContent='הטקסט או הכללים השתנו. הרץ בדיקה חדשה.';
+}
 function update(){
+  clearDuplicates();
   $('source-count').textContent=count(source.value);
   try{
     result=normalizeHebrew(source.value,selectedSettings());
@@ -87,6 +96,66 @@ $('copy').addEventListener('click',async()=>{
     notice('העתקה אוטומטית נחסמה. הטקסט סומן להעתקה ידנית.',true);
   }
 });
+
+function analyzeDuplicates(){
+  try{
+    const analyzed=findDuplicateLines(source.value,selectedSettings());
+    lastDuplicates=analyzed;
+    const counts=duplicateSummary(analyzed);
+    $('duplicates-summary').textContent=
+      counts.nonEmptyLines.toLocaleString('he-IL')+' שורות לא ריקות · '+
+      counts.duplicateGroups.toLocaleString('he-IL')+' קבוצות כפולות · '+
+      counts.redundantLines.toLocaleString('he-IL')+' שורות עודפות' +
+      (counts.normalizedEmpty ? ' · '+counts.normalizedEmpty+' שורות שהתרוקנו בנרמול' : '');
+    const region=$('duplicates-groups');
+    region.replaceChildren();
+    if(!analyzed.groups.length){
+      const message=document.createElement('p');
+      message.textContent='לא נמצאו שורות שמקבלות מפתח נרמול זהה.';
+      region.append(message);
+    }else{
+      const list=document.createElement('ol');
+      const maxShown=200;
+      for(const group of analyzed.groups.slice(0,maxShown)){
+        const item=document.createElement('li');
+        const key=document.createElement('code');
+        key.dir='auto';
+        key.textContent=[...group.normalized].slice(0,110).join('')+
+          ([...group.normalized].length>110?'…':'');
+        const lines=document.createElement('span');
+        lines.textContent=' שורות: '+group.lines.join(', ');
+        item.append(key,lines);list.append(item);
+      }
+      region.append(list);
+      if(analyzed.groups.length>maxShown){
+        const more=document.createElement('p');
+        more.textContent='מוצגות 200 הקבוצות הראשונות בלבד. הדוח להורדה כולל את כל הקבוצות.';
+        region.append(more);
+      }
+    }
+    $('download-duplicates').disabled=false;
+    notice('ניתוח הכפילויות הושלם מקומית. ערכי המקור לא נשלחו לשרת.');
+  }catch(error){
+    lastDuplicates=null;
+    $('download-duplicates').disabled=true;
+    $('duplicates-groups').replaceChildren();
+    $('duplicates-summary').textContent='הבדיקה נכשלה.';
+    notice(error.message,true);
+  }
+}
+$('find-duplicates').addEventListener('click',analyzeDuplicates);
+$('download-duplicates').addEventListener('click',()=>{
+  if(!lastDuplicates)return;
+  const report={
+    format:'hebrew-normalize-duplicate-lines-v1',
+    counts:duplicateSummary(lastDuplicates),
+    groups:lastDuplicates.groups,
+  };
+  save('hebrew-duplicate-lines.json',JSON.stringify(report,null,2)+'\n',
+    'application/json;charset=utf-8');
+  notice('דוח הכפילויות נשמר. הוא כולל מפתחות מנורמלים — יש לבדוק מידע רגיש לפני שיתוף.');
+});
+
 preset.value='search';
 applySettings(PRESETS.search);
 source.value=example;
