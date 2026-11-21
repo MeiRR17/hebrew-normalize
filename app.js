@@ -1,5 +1,5 @@
 import { normalizeHebrew, DEFAULT_OPTIONS, PRESETS } from './src/index.js';
-import { findDuplicateLines, duplicateSummary } from './src/duplicates.js';
+import { findDuplicateLines, duplicateSummary, summarizeDuplicateLines } from './src/duplicates.js';
 const $=id=>document.getElementById(id);
 const source=$('source'), output=$('output'),preset=$('preset');
 const optionNames=Object.keys(DEFAULT_OPTIONS);
@@ -162,14 +162,18 @@ function analyzeDuplicates(){
 $('find-duplicates').addEventListener('click',analyzeDuplicates);
 $('download-duplicate-counts').addEventListener('click',()=>{
   if(!lastDuplicates)return;
-  const report={
-    format:'hebrew-normalize-duplicate-summary-v1',
-    counts:duplicateSummary(lastDuplicates),
-    advisory:'Counts only. Normalized keys, line numbers and original content are omitted.',
-  };
-  save('hebrew-duplicate-counts.json',JSON.stringify(report,null,2)+'\n',
-    'application/json;charset=utf-8');
-  notice('סיכום מספרי נשמר. הדוח אינו כולל מפתחות או שורות טקסט.');
+  try{
+    const report={
+      format:'hebrew-normalize-duplicate-summary-v1',
+      // Re-analyze as aggregates without creating an export payload containing
+      // normalized keys or any of the original line-number group arrays.
+      counts:summarizeDuplicateLines(source.value,selectedSettings()),
+      advisory:'Counts only. Normalized keys, line numbers and original content are omitted.',
+    };
+    save('hebrew-duplicate-counts.json',JSON.stringify(report,null,2)+'\n',
+      'application/json;charset=utf-8');
+    notice('סיכום מספרי נשמר. הדוח אינו כולל מפתחות או שורות טקסט.');
+  }catch(error){notice('יצירת הדוח נכשלה: '+error.message,true);}
 });
 $('download-duplicates').addEventListener('click',()=>{
   if(!lastDuplicates)return;
