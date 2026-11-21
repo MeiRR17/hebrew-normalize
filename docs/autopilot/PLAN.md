@@ -4,10 +4,10 @@
 ## v1 — Library foundation
 repo: MeiRR17/hebrew-normalize
 after: none
-- [ ] Add package.json with Node.js >=22, ES modules, library exports, `node --test` script, and no dependencies or devDependencies.
-- [ ] Implement `src/index.js` with a pure `normalizeHebrew(text, options = {})` export, complete JSDoc, string-input validation, and individually switchable whitespace collapsing and bidi-direction-mark removal.
-- [ ] Define the stable options object and defaults for all planned stages without exposing unfinished functionality as working.
-- [ ] Add `test/fixtures/basics.json` and `test/basics.test.js` covering whitespace, bidi marks, unchanged text with disabled stages, invalid input, and idempotence.
+- [x] Add package.json with Node.js >=22, ES modules, library exports, `node --test` script, and no dependencies or devDependencies.
+- [x] Implement `src/index.js` with a pure `normalizeHebrew(text, options = {})` export, complete JSDoc, string-input validation, and individually switchable whitespace collapsing and bidi-direction-mark removal.
+- [x] Define the stable options object and defaults for all planned stages without exposing unfinished functionality as working.
+- [x] Add `test/fixtures/basics.json` and `test/basics.test.js` covering whitespace, bidi marks, unchanged text with disabled stages, invalid input, and idempotence.
 Done when: `node --test` passes on Node.js 22+; `import { normalizeHebrew } from './src/index.js'` works; no package dependencies exist; v1 fixture cases pass.
 
 ## v2 — Niqqud and final letters
