@@ -39,14 +39,15 @@
           <div><span class="eyebrow">04 / ניקוי נתונים</span><h2 id="duplicates-heading">איתור שורות כפולות</h2></div>
           <div class="buttons">
             <button type="button" id="find-duplicates">בדיקת כפילויות</button>
-            <button type="button" id="download-duplicates" disabled>↓ דוח JSON</button>
+            <button type="button" id="download-duplicates" disabled>↓ דוח כפילויות מלא</button>
+            <button type="button" id="download-duplicate-counts" disabled>↓ ספירות בלבד</button>
           </div>
         </div>
         <div class="duplicate-content">
           <p class="helper">בדיקה של שורות מקור לא ריקות לפי כללי הנרמול הנוכחיים. מתקבלת רשימה של שורות שהופכות למפתח זהה, גם אם הניקוד או הכתיב שלהן שונים. אין כאן קביעה של זהות לשונית או הלכתית.</p>
           <p id="duplicates-summary" role="status" aria-live="polite">טרם בוצעה בדיקת כפילויות.</p>
           <div id="duplicates-groups" class="duplicate-list"></div>
-          <p class="helper">הדוח עשוי להכיל טקסט מנורמל מתוך הקובץ. בדקו את תוכנו לפני שיתוף. כל העיבוד נשאר בדפדפן.</p>
+          <p class="helper">בדוח המלא עשויים להופיע מפתחות מנורמלים מן המקור. דוח הספירות מכיל מספרים בלבד. כל העיבוד נשאר בדפדפן.</p>
         </div>
       </section>
       <p id="notice" role="status" aria-live="polite" class="notice"></p>
