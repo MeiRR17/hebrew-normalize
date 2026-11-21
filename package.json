@@ -1,0 +1,11 @@
+{
+  "name": "hebrew-normalize",
+  "version": "0.1.0",
+  "description": "Deterministic Hebrew text normalization for search and comparison",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "exports": { ".": "./src/index.js" },
+  "scripts": { "test": "node --test" },
+  "files": ["src/", "README.md", "LICENSE"],
+  "private": true
+}
