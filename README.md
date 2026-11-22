@@ -79,8 +79,17 @@
     node bin/hebrew-normalize.js --mode display input.txt
     node bin/hebrew-normalize.js --mode search --keep-finals input.txt
     node bin/hebrew-normalize.js --mode search --output normalized.txt input.txt
+    node bin/hebrew-normalize.js --duplicate-counts corpus.txt
+    cat corpus.txt | node bin/hebrew-normalize.js --duplicate-counts --keep-finals
+    node bin/hebrew-normalize.js --duplicate-counts --output counts.json corpus.txt
 
 אפשר גם להעביר קלט דרך stdin. הפלט נשלח ל־stdout או לקובץ חדש באמצעות \`--output\`. קובץ קיים **לא יידרס**. האפשרות \`--json\` מחזירה את התוצאה כמחרוזת JSON.
+
+### דוח כפילויות מספרי ב־CLI
+
+האפשרות `--duplicate-counts` מפיקה **JSON מספרי בלבד** עם אותן ספירות כמו דוח הדפדפן (`summarizeDuplicateLines`), ללא טקסט מקור, מפתחות נרמול או מספרי שורות. ברירת המחדל היא `PRESETS.search` להתאמה לבדיקת הכפילויות בדפדפן; `--mode display` או אפשרויות `--keep-*` משנות את כללי ההשוואה. אין לשלב `--duplicate-counts` עם `--json` (הפלט כבר JSON). גם סטטיסטיקה מצטברת עשויה להיות רגישה.
+
+קריאת קלט מהדיסק או מ־stdin מוגבלת ל־**4,000,000 בתים ו־2,000,000 יחידות קוד UTF-16 של JavaScript**, לפי המגבלה המוקדמת. UTF-8 פגום נדחה במקום להיות מוחלף בתווים אחרים. בניתוח כפילויות חלה גם מגבלת 10,000 שורות לא־ריקות. נתוני המקור והמפתחות המנורמלים מחושבים רק בזיכרון התהליך, והדוח אינו כולל אותם. מצב זה מתאים לצינורות עבודה מקומיים ולא לזיהוי סמנטי של כפילויות.
 
 ## מגבלות
 
