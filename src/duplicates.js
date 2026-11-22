@@ -60,13 +60,56 @@ export function findDuplicateLines(source, options = PRESETS.search) {
   };
 }
 
-/** A counts-only report suitable for logging without source content. */
+/**
+ * Counts-only projection of a complete duplicate analysis. Validate all
+ * reported aggregates before publishing a privacy-reduced summary.
+ */
 export function duplicateSummary(result) {
-  if (!result || !Array.isArray(result.groups)) {
+  if (!result || typeof result !== 'object' || !Array.isArray(result.groups)) {
     throw new TypeError('Expected duplicate analysis output.');
   }
   const { sourceLineCount, nonEmptyLines, normalizedEmpty, distinctKeys,
     duplicateGroups, duplicateLines, redundantLines } = result;
+  const counts = [sourceLineCount, nonEmptyLines, normalizedEmpty, distinctKeys,
+    duplicateGroups, duplicateLines, redundantLines];
+  if (!counts.every(n => Number.isSafeInteger(n) && n >= 0) ||
+      sourceLineCount < 1 || sourceLineCount > MAX_DOCUMENT_CHARS + 1 ||
+      nonEmptyLines > MAX_NONEMPTY_LINES || nonEmptyLines > sourceLineCount ||
+      normalizedEmpty > nonEmptyLines ||
+      distinctKeys > nonEmptyLines - normalizedEmpty ||
+      duplicateGroups > distinctKeys ||
+      duplicateLines > nonEmptyLines - normalizedEmpty ||
+      redundantLines !== duplicateLines - duplicateGroups ||
+      distinctKeys + redundantLines !== nonEmptyLines - normalizedEmpty ||
+      result.groups.length !== duplicateGroups) {
+    throw new TypeError('Duplicate summary counts do not reconcile.');
+  }
+  const seenLines = new Set(), seenKeys = new Set();
+  let groupedLines = 0;
+  for (const group of result.groups) {
+    if (!group || typeof group !== 'object' ||
+        typeof group.normalized !== 'string' || !group.normalized.trim() ||
+        seenKeys.has(group.normalized) ||
+        !Array.isArray(group.lines) ||
+        group.lines.length < 2 || group.lines.length > MAX_NONEMPTY_LINES ||
+        group.occurrences !== group.lines.length) {
+      throw new TypeError('Invalid duplicate group in analysis.');
+    }
+    seenKeys.add(group.normalized);
+    let previous = 0;
+    for (const line of group.lines) {
+      if (!Number.isSafeInteger(line) || line <= previous ||
+          line > sourceLineCount || seenLines.has(line)) {
+        throw new TypeError('Duplicate group positions must be unique and ordered.');
+      }
+      seenLines.add(line);
+      previous = line;
+    }
+    groupedLines += group.occurrences;
+  }
+  if (groupedLines !== duplicateLines) {
+    throw new TypeError('Duplicate group occurrences do not reconcile.');
+  }
   return { sourceLineCount, nonEmptyLines, normalizedEmpty, distinctKeys,
     duplicateGroups, duplicateLines, redundantLines };
 }

@@ -87,6 +87,10 @@ export function normalizeHebrew(input, options) {
   if (config.normalizeMaqaf) value = value.replace(/\u05BE/gu, '-');
   if (config.collapseWhitespace) value = value.replace(/\s+/gu, ' ');
   if (config.trim) value = value.trim();
+  // Unicode decomposition and Yiddish ligatures can expand bounded input.
+  if (value.length > MAX_LENGTH) {
+    throw new RangeError('Normalized output exceeds 2,000,000 characters.');
+  }
   return value;
 }
 
